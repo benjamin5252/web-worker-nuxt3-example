@@ -1,7 +1,8 @@
+<!-- index.vue -->
 <template lang="">
     <div>
         <button @click="cal('mainThread')">Sum 0 to {{ numToSum }} (Main thread)</button>
-        <button @click="cal('workerPublic')">Sum 0 to {{ numToSum }} (Worker public)</button>
+        <button @click="cal('workerPlain')">Sum 0 to {{ numToSum }} (Worker Plain)</button>
         <div v-for="(val, index) in countingMsg">{{val}}</div>
         <div class="css_animated_part"></div>
     </div>
@@ -12,25 +13,18 @@ const countingMsg = ref([])
 
 
 const cal = async (type) => {
-
     let sum = 0;
-    
-    
-        const start = performance.now();
-        if (type === 'mainThread') {
-            sum = await sumNumMainMainThread()
-        } else if (type === 'workerPublic') {
-            sum = await sumNumWorkerPublic()
-        }
-        const end = performance.now();
-        countingMsg.value.push(`The sum of 0 to ${numToSum.value} is  ${sum} (${type})  (time spent: ${end - start} ms)`)
-  
-
-    
-
-
+    const start = performance.now();
+    if (type === 'mainThread') {
+        sum = await sumNumMainMainThread()
+    } else if (type === 'workerPlain') {
+        sum = await sumNumWorkerPlain()
+    }
+    const end = performance.now();
+    countingMsg.value.push(`The sum of 0 to ${numToSum.value} is  ${sum} (${type})  (time spent: ${end - start} ms)`)
 }
 
+// calculate answer on main thread
 const sumNumMainMainThread = () => {
     return new Promise((resolve, reject) => {
         console.log('In main thread: calculating sum to ' + numToSum.value)
@@ -44,14 +38,11 @@ const sumNumMainMainThread = () => {
 
 }
 
-const sumNumWorkerPublic = () => {
-    return new Promise((resolve, reject) => {
-        let worker = null;
-        
-        worker = new Worker('/worker.js')
-        
-        
 
+// calculate the answer with web worker create from /public/worker.js
+const sumNumWorkerPlain = () => {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker('/worker.js')
         worker.postMessage(numToSum.value);
         worker.addEventListener('message', (e) => {
             if (e.data) {

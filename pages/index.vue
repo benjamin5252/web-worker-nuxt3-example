@@ -2,7 +2,8 @@
 <template lang="">
     <div>
         <button @click="cal('mainThread')">Sum 0 to {{ numToSum }} (Main thread)</button>
-        <button @click="cal('workerPlain')">Sum 0 to {{ numToSum }} (Worker Plain)</button>
+        <button @click="cal('workerPublic')">Sum 0 to {{ numToSum }} (Worker Public)</button>
+        <button @click="cal('workerViteUrl')">Sum 0 to {{ numToSum }} (Worker ViteUrl)</button>
         <div v-for="(val, index) in countingMsg">{{val}}</div>
         <div class="css_animated_part"></div>
     </div>
@@ -17,8 +18,10 @@ const cal = async (type) => {
     const start = performance.now();
     if (type === 'mainThread') {
         sum = await sumNumMainMainThread()
-    } else if (type === 'workerPlain') {
-        sum = await sumNumWorkerPlain()
+    } else if (type === 'workerPublic') {
+        sum = await sumNumWorkerPublic()
+    } else if (type === 'workerViteUrl') {
+        sum = await sumNumWorkerPublic()
     }
     const end = performance.now();
     countingMsg.value.push(`The sum of 0 to ${numToSum.value} is  ${sum} (${type})  (time spent: ${end - start} ms)`)
@@ -40,9 +43,23 @@ const sumNumMainMainThread = () => {
 
 
 // calculate the answer with web worker create from /public/worker.js
-const sumNumWorkerPlain = () => {
+const sumNumWorkerPublic = () => {
     return new Promise((resolve, reject) => {
         const worker = new Worker('/worker.js')
+        worker.postMessage(numToSum.value);
+        worker.addEventListener('message', (e) => {
+            if (e.data) {
+                resolve(e.data)
+                worker.terminate()
+            }
+        }, false);
+    })
+}
+
+// calculate the answer with web worker create from /assets/workers/worker.js
+const sumNumWorkerVite = () => {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(new URL('./workers/worker.js', import.meta.url))
         worker.postMessage(numToSum.value);
         worker.addEventListener('message', (e) => {
             if (e.data) {

@@ -3,12 +3,14 @@
     <div>
         <button @click="cal('mainThread')">Sum 0 to {{ numToSum }} (Main thread)</button>
         <button @click="cal('workerPublic')">Sum 0 to {{ numToSum }} (Worker Public)</button>
-        <button @click="cal('workerViteUrl')">Sum 0 to {{ numToSum }} (Worker ViteUrl)</button>
+        <button @click="cal('workerVite')">Sum 0 to {{ numToSum }} (Worker Vite)</button>
         <div v-for="(val, index) in countingMsg">{{val}}</div>
         <div class="css_animated_part"></div>
     </div>
 </template>
 <script  setup >
+// import worker script according to the doc of Vite
+import MyWorker from '@/assets/workers/workerVite?worker'
 const numToSum = ref(1000000000)
 const countingMsg = ref([])
 
@@ -20,8 +22,8 @@ const cal = async (type) => {
         sum = await sumNumMainMainThread()
     } else if (type === 'workerPublic') {
         sum = await sumNumWorkerPublic()
-    } else if (type === 'workerViteUrl') {
-        sum = await sumNumWorkerPublic()
+    } else if (type === 'workerVite') {
+        sum = await sumNumWorkerVite()
     }
     const end = performance.now();
     countingMsg.value.push(`The sum of 0 to ${numToSum.value} is  ${sum} (${type})  (time spent: ${end - start} ms)`)
@@ -59,7 +61,7 @@ const sumNumWorkerPublic = () => {
 // calculate the answer with web worker create from /assets/workers/worker.js
 const sumNumWorkerVite = () => {
     return new Promise((resolve, reject) => {
-        const worker = new Worker(new URL('./workers/worker.js', import.meta.url))
+        const worker = new MyWorker()
         worker.postMessage(numToSum.value);
         worker.addEventListener('message', (e) => {
             if (e.data) {

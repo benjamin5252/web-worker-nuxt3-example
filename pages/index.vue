@@ -48,13 +48,13 @@ const sumNumMainMainThread = () => {
 const sumNumWorkerPublic = () => {
     return new Promise((resolve, reject) => {
         const worker = new Worker('/worker.js')
-        worker.postMessage(numToSum.value);
         worker.addEventListener('message', (e) => {
             if (e.data) {
                 resolve(e.data)
                 worker.terminate()
             }
         }, false);
+        worker.postMessage(numToSum.value);
     })
 }
 
@@ -62,13 +62,13 @@ const sumNumWorkerPublic = () => {
 const sumNumWorkerVite = () => {
     return new Promise((resolve, reject) => {
         const worker = new MyWorker()
-        worker.postMessage(numToSum.value);
         worker.addEventListener('message', (e) => {
             if (e.data) {
                 resolve(e.data)
                 worker.terminate()
             }
         }, false);
+        worker.postMessage(numToSum.value);
     })
 }
 

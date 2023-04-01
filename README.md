@@ -1,6 +1,5 @@
-# Nuxt 3 Minimal Starter
+# How to use web worker in nuxt3 app example
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
 ## Setup
 
@@ -31,6 +30,9 @@ Build the application for production:
 
 ```bash
 npm run build
+```
+```bash
+npm run start
 ```
 
 Locally preview production build:
